@@ -6,7 +6,7 @@ This Terraform configuration sets up networking resources on GCP. It creates a V
 
 GCP requires certain services to be enabled before you can use them. These services provide essential functionalities for deploying infrastructure using Terraform. 
 
-Required services are
+Required service is
 1. Compute Engine API: This API is necessary for creating networking resources such as VPC networks, subnets, and routes.
 In Google Cloud Console—>APIs & Services > Dashboard—>Enable APIs and Services—>Search for "Compute Engine API”—>Click on Enable to enable the Compute Engine API for your project.
 
