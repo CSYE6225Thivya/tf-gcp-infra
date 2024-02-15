@@ -1,5 +1,5 @@
 # This Terraform configuration sets up networking resources on GCP.
-# It creates VPC with two subnets: webapp and db, and adds a route to the webapp subnet.
+# It creates VPC with two subnets: webapp and db, and adds a route to vpc.
 
 
 # Provider configuration for GCP
@@ -33,8 +33,8 @@ resource "google_compute_subnetwork" "db_subnet" {
 }
 
 # Resource to create route for webapp subnet
-resource "google_compute_route" "webapp_route" {
-  name                  = var.webapp_route_name 
+resource "google_compute_route" "vpc_route" {
+  name                  = var.vpc_route_name 
   network               = google_compute_network.my_vpc.self_link
   dest_range            = var.route_range
   next_hop_gateway      = var.next_hop_gateway 

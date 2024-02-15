@@ -2,7 +2,7 @@
 
 # Infrastructure Setup with Terraform on GCP
 
-This Terraform configuration sets up networking resources on GCP. It creates a Virtual Private Cloud (VPC) with two subnets: webapp and db, and adds a route to the webapp subnet.
+This Terraform configuration sets up networking resources on GCP. It creates a Virtual Private Cloud (VPC) with two subnets: webapp and db, and adds a route to vpc.
 
 GCP requires certain services to be enabled before you can use them. These services provide essential functionalities for deploying infrastructure using Terraform. 
 
@@ -28,7 +28,7 @@ In Google Cloud Console—>APIs & Services > Dashboard—>Enable APIs and Servic
 - google_compute_network.my_vpc: Creates VPC with the configuration provided
 - google_compute_subnetwork.webapp_subnet: Creates webapp subnet within the VPC
 - google_compute_subnetwork.db_subnet: Creates db subnet within the VPC
-- google_compute_route.webapp_route: Adds route to the webapp subnet
+- google_compute_route.vpc_route: Adds route to vpc
 
 # Implementation
 

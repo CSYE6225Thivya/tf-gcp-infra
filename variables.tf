@@ -34,10 +34,9 @@ variable "db_subnet_cidr" {
   description = "CIDR range for the db subnet"
 }
 
-variable "webapp_route_name" {
-  description = "Name of the webapp subnet route"
+variable "vpc_route_name" {
+  description = "Name of the vpc route"
 }
-
 
 variable "routing_mode" {
   description = "Name of the routing mode"
