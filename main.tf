@@ -6,7 +6,7 @@
 provider "google" {
   project = var.project_id
   region  = var.region
-}
+
 
 # Resource to create VPC
 resource "google_compute_network" "my_vpc" {
