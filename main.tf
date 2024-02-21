@@ -39,3 +39,58 @@ resource "google_compute_route" "vpc_route" {
   dest_range            = var.route_range
   next_hop_gateway      = var.next_hop_gateway 
 }
+
+# Resource to create firewall
+resource "google_compute_firewall" "vpc_firewall" {
+  name    = var.firewall_http
+  network = google_compute_network.my_vpc.self_link
+  priority    = 900
+
+  allow {
+    protocol = var.protocol_http
+    ports    = var.ports_http 
+  }
+
+  source_ranges = var.source_ranges_http
+  target_tags   = var.target_tags_http
+}
+
+resource "google_compute_firewall" "deny-ssh" {
+  name    = var.firewall_ssh
+  network = google_compute_network.my_vpc.self_link
+  priority    = 1000
+ 
+  deny {
+    protocol = var.protocol_ssh
+  }
+ 
+  source_ranges = var.source_ranges_ssh
+  target_tags   = var.target_tags_ssh 
+}
+
+# Resource to create instance
+resource "google_compute_instance" "vpc_instance" {
+  name         = var.custom_image_instance_name
+  machine_type = var.custom_image_instance_machine_type
+  zone         = var.custom_image_instance_zone
+boot_disk {
+    initialize_params {
+      image = var.instance_name
+      size  = var.custom_image_instance_bootdisk_size
+      type  = var.custom_image_instance_bootdisk_type
+    }
+  }
+network_interface {
+    network = google_compute_network.my_vpc.self_link
+    subnetwork = google_compute_subnetwork.webapp_subnet.self_link  
+    access_config {   
+    }
+  }
+  tags = var.network_tag 
+}
+
+
+
+
+
+
