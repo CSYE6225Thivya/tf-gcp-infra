@@ -37,4 +37,7 @@ In Google Cloud Console—>APIs & Services > Dashboard—>Enable APIs and Servic
 3. 'terraform apply' - to apply the configuration and create the networking resources on GCP.
 
 
-
+## Assignment - 4
+ 
+1. An instance created from the custom image is deployed on our web-app subnet.
+2. Only 8080 port is allowed in our firewall and rest all ports denied using priority
