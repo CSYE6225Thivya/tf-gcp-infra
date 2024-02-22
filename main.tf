@@ -44,7 +44,7 @@ resource "google_compute_route" "vpc_route" {
 resource "google_compute_firewall" "vpc_firewall" {
   name    = var.firewall_http
   network = google_compute_network.my_vpc.self_link
-  priority    = 900
+  priority    = var.priority_allow
 
   allow {
     protocol = var.protocol_http
@@ -55,10 +55,11 @@ resource "google_compute_firewall" "vpc_firewall" {
   target_tags   = var.target_tags_http
 }
 
+# Resource to deny firewall
 resource "google_compute_firewall" "deny-ssh" {
   name    = var.firewall_ssh
   network = google_compute_network.my_vpc.self_link
-  priority    = 1000
+  priority    = var.priority_deny
  
   deny {
     protocol = var.protocol_ssh

@@ -115,6 +115,12 @@ variable instance_name {
 }
 
 
+variable priority_allow {
+  description = "Priority allow"
+}
+variable priority_deny {
+  description = "Priority deny"
+}
 
 
 
