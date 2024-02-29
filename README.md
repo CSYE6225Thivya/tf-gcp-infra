@@ -1,4 +1,5 @@
 # tf-gcp-infra
+## Assignment - 3
 
 # Infrastructure Setup with Terraform on GCP
 
@@ -41,3 +42,10 @@ In Google Cloud Console—>APIs & Services > Dashboard—>Enable APIs and Servic
  
 1. An instance created from the custom image is deployed on our web-app subnet.
 2. Only 8080 port is allowed in our firewall and rest all ports denied using priority
+
+## Assignment - 5
+1. Private services access has been enabled in the VPC to enhance security("Service Networking API" enabled in GCP console).
+2. Default configuration for CloudSQL instance including settings like deletion protection, availability type, disk type, size, and IPv4 settings is created.
+3. Database named "webapp" has been created within the CloudSQL instance.
+4. Created user named "webapp" with a randomly generated password for accessing the CloudSQL database.
+5. Startup script was setup to create .env file to passes database configuration details to the web application
