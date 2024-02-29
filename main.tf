@@ -55,6 +55,7 @@ resource "google_compute_firewall" "vpc_firewall" {
   target_tags   = var.target_tags_http
 }
 
+
 # Resource to deny firewall
 resource "google_compute_firewall" "deny-ssh" {
   name    = var.firewall_ssh
@@ -68,6 +69,85 @@ resource "google_compute_firewall" "deny-ssh" {
   source_ranges = var.source_ranges_ssh
   target_tags   = var.target_tags_ssh 
 }
+
+
+# Resource to create CloudSQL instance
+resource "google_sql_database_instance" "cloudsql_instance" {
+  name             = var.cloudsql_instance_name
+  database_version = var.mysql_db_version
+  region           = var.region
+  deletion_protection = var.deletion_protection
+ 
+  settings {
+    tier              = var.sql_tier
+    disk_type         = var.disk_type
+    disk_size         = var.disk_size
+    availability_type  = var.availability_type
+  backup_configuration {
+      enabled            = var.backup_configuration_enabled
+      binary_log_enabled = var.binary_log_enabled 
+    }
+   ip_configuration {
+      psc_config {
+        psc_enabled               = var.psc_enabled 
+        allowed_consumer_projects = [var.project_id]
+      }
+      ipv4_enabled = var.ipv4_enabled_cloudsql_instance
+    }
+  }
+}
+
+resource "google_compute_global_address" "peer_address" {
+  name          = var.peer_address_name 
+  address_type  = var.address_type 
+  prefix_length = var.prefix_length 
+  purpose       = var.purpose 
+  network       = google_compute_network.my_vpc.self_link
+}
+ 
+resource "google_service_networking_connection" "private_connection" {
+  network                 = google_compute_network.my_vpc.self_link
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.peer_address.name]
+}
+ 
+resource "google_compute_address" "endpointip" {
+  name         = "psc-compute-address-${google_sql_database_instance.cloudsql_instance.name}"
+  region       = var.region
+  address_type = var.address_type_endpointip 
+  subnetwork   = google_compute_subnetwork.db_subnet.id
+  address      = var.endpointip 
+}
+ 
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "psc-forwarding-rule-${google_sql_database_instance.cloudsql_instance.name}"
+  region                = var.region
+  subnetwork            = google_compute_subnetwork.db_subnet.id
+  ip_address            = google_compute_address.endpointip.id
+  load_balancing_scheme = ""
+  target                = google_sql_database_instance.cloudsql_instance.psc_service_attachment_link
+}
+
+
+# Resource to create sql database
+resource "google_sql_database" "webapp_db" {
+  name     = var.sqldb_name 
+  instance = google_sql_database_instance.cloudsql_instance.name
+}
+
+# Resource to create random password
+resource "random_password" "sql_user_password" {
+  length  = var.random_password_length 
+  special = var.random_password_special 
+}
+
+# Resource to create CloudSQL user
+resource "google_sql_user" "sql_user" {
+  name     = var.sqluser_name 
+  instance = google_sql_database_instance.cloudsql_instance.name
+  password = random_password.sql_user_password.result
+}
+
 
 # Resource to create instance
 resource "google_compute_instance" "vpc_instance" {
@@ -88,8 +168,26 @@ network_interface {
     }
   }
   tags = var.network_tag 
+  depends_on = [
+    google_sql_database_instance.cloudsql_instance,
+    google_sql_user.sql_user,
+    google_compute_address.endpointip 
+  ]
+metadata_startup_script = <<-EOF
+  #!/bin/bash
+  ENV_FILE="/opt/webapp/.env"
+  if [ ! -f "$ENV_FILE" ]; then
+    echo "HOST=${google_compute_address.endpointip.address}" > /opt/webapp/.env
+    echo "DB_PASSWORD=${google_sql_user.sql_user.password}" >> /opt/webapp/.env
+    echo "DB_USER=${google_sql_user.sql_user.name}" >> /opt/webapp/.env
+    echo "DB=${google_sql_database.webapp_db.name}" >> /opt/webapp/.env
+    echo "DIALECT=mysql" >> /opt/webapp/.env
+  else
+      echo "The file $ENV_FILE already exists."
+  fi
+  sudo ./opt/webapp/packer-config/configure_systemd.sh
+  EOF
 }
-
 
 
 

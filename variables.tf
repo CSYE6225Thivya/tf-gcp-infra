@@ -122,6 +122,95 @@ variable priority_deny {
   description = "Priority deny"
 }
 
+variable "cloudsql_instance_name" {
+  description = "Name of mysql instance"
+}
+
+
+variable "mysql_db_version" {
+  description = "mysql db version"
+}
+
+variable "deletion_protection" {
+  description = "Controls whether deletion protection is enabled for the SQL instance. When deletion protection is enabled, it prevents the instance from being deleted accidentally"
+}
+
+variable "availability_type" {
+  description = "Specifies the availability type for SQL instance"
+}
+
+variable "sql_tier" {
+  description = "Represents the tier SQL instance"
+}
+
+variable "disk_type" {
+  description = "Defines the type of disk"
+}
+
+variable "disk_size" {
+  description = "Specifies the size of the disk"
+}
+
+variable "ipv4_enabled" {
+  description = "Controls whether IPv4 is enabled for SQL instance"
+}
+
+variable "sqldb_name" {
+  description = "Name of the DB"
+}
+
+variable "sqluser_name" {
+  description = "Name of the sql user"
+}
+
+variable "backup_configuration_enabled" {
+  description = "Backup configuration status"
+}
+
+variable "binary_log_enabled" {
+  description = "Binary log status"
+}
+
+variable "psc_enabled" {
+  description = "psc enabled status"
+}
+variable "ipv4_enabled_cloudsql_instance" {
+  description = "ipv4 enabled status"
+}
+
+variable "peer_address_name" {
+  description = "Name of the global address"
+}
+variable "address_type" {
+  description = "Name of the global address type"
+}
+
+variable "prefix_length" {
+  description = "Prefix length of the global address"
+}
+variable "purpose" {
+  description = "Purpose of the global address"
+}
+variable "endpointip" {
+  description = "IP address of the endpoint"
+}
+variable "address_type_endpointip" {
+  description = "Address type of the endpoint"
+}
+
+variable "random_password_special" {
+  description = "random_password attribute"
+}
+
+variable "random_password_length" {
+  description = "random_password length"
+}
+
+
+
+
+
+
 
 
 
