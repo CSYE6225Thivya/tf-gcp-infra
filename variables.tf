@@ -206,6 +206,38 @@ variable "random_password_length" {
   description = "random_password length"
 }
 
+variable "dns_record_name" {
+  description = "The name of the dns record set"
+}
+
+variable "dns_record_type" {
+  description = "DNS record type"
+}
+
+variable "ttl_limit" {
+  description = "TTL limit"
+}
+
+variable "managed_zone_name" {
+  description = "Name of the managed zone"
+}
+
+variable "service_account_id" {
+  description = "Name of the service account id"
+}
+
+variable "service_account_display_name" {
+  description = "Name of the service account display name"
+}
+
+variable "logging_admin_binding" {
+  description = "IAM binding for roles/logging.admin"
+}
+
+variable "monitoring_metric_writer_binding" {
+  description = "IAM binding for roles/monitoring.metricWriter"
+}
+
 
 
 

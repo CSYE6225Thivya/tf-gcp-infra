@@ -149,11 +149,50 @@ resource "google_sql_user" "sql_user" {
 }
 
 
+# Resource to manage A record in Cloud DNS zone
+resource "google_dns_record_set" "A_record" {
+  name    =  var.dns_record_name
+  type    =  var.dns_record_type
+  ttl     = var.ttl_limit
+  managed_zone = var.managed_zone_name
+
+  rrdatas = [google_compute_instance.vpc_instance.network_interface.0.access_config.0.nat_ip]
+}
+
+# Resource to create service account
+resource "google_service_account" "vm_service_account" {
+  account_id   = var.service_account_id
+  display_name = var.service_account_display_name
+}
+
+
+# Bind Logging Admin role to the service account
+resource "google_project_iam_binding" "logging_admin_binding" {
+  project = var.project_id
+  role    = var.logging_admin_binding
+
+  members = [
+    "serviceAccount:${google_service_account.vm_service_account.email}"
+  ]
+}
+
+# Bind Monitoring Metric Writer role to the service account
+resource "google_project_iam_binding" "monitoring_metric_writer_binding" {
+  project = var.project_id
+  role    = var.monitoring_metric_writer_binding
+
+  members = [
+    "serviceAccount:${google_service_account.vm_service_account.email}"
+  ]
+}
+
+
 # Resource to create instance
 resource "google_compute_instance" "vpc_instance" {
   name         = var.custom_image_instance_name
   machine_type = var.custom_image_instance_machine_type
   zone         = var.custom_image_instance_zone
+  allow_stopping_for_update = true
 boot_disk {
     initialize_params {
       image = var.instance_name
@@ -168,10 +207,20 @@ network_interface {
     }
   }
   tags = var.network_tag 
+
+  service_account {
+    email  = google_service_account.vm_service_account.email
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+
+
   depends_on = [
     google_sql_database_instance.cloudsql_instance,
     google_sql_user.sql_user,
-    google_compute_address.endpointip 
+    google_compute_address.endpointip,
+    google_service_account.vm_service_account,
+    google_project_iam_binding.logging_admin_binding,
+    google_project_iam_binding.monitoring_metric_writer_binding
   ]
 metadata_startup_script = <<-EOF
   #!/bin/bash
@@ -182,13 +231,13 @@ metadata_startup_script = <<-EOF
     echo "DB_USER=${google_sql_user.sql_user.name}" >> /opt/webapp/.env
     echo "DB=${google_sql_database.webapp_db.name}" >> /opt/webapp/.env
     echo "DIALECT=mysql" >> /opt/webapp/.env
+    echo "LOGPATH=/var/log/webapp/app.log" >> /opt/webapp/.env
   else
       echo "The file $ENV_FILE already exists."
   fi
   sudo ./opt/webapp/packer-config/configure_systemd.sh
   EOF
 }
-
 
 
 
