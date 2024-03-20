@@ -49,3 +49,54 @@ In Google Cloud Console—>APIs & Services > Dashboard—>Enable APIs and Servic
 3. Database named "webapp" has been created within the CloudSQL instance.
 4. Created user named "webapp" with a randomly generated password for accessing the CloudSQL database.
 5. Startup script was setup to create .env file to passes database configuration details to the web application
+
+## Assignment - 6
+Setting up Cloud DNS and Namecheap Integration
+1. Acquiring a Domain Name from Namecheap:
+- Go to Namecheap's website and log in to your specific account (or create one if you haven't already).
+- Search for desired domain name using Namecheap's domain search tool.
+Once you find an available domain name that you want to purchase, add it to your cart and complete the checkout process. (domain name is free using github student pack)
+
+2. Registering the Domain in Google Cloud Platform:
+- Log in to Google Cloud Platform (GCP) Console.
+- Navigate to the Cloud DNS page by clicking on menu -- > Networking > Network Services > Cloud DNS.
+- Click on the "Create zone" button.
+- Enter the zone name (mycloudwebapp) and DNS name (mycloudwebapp.me)
+- Click on the "Create" button to register the domain in Google Cloud Platform.
+
+3. Obtain Custom Name Servers from Google Cloud DNS:
+- After registering the domain in Google Cloud DNS, Google Cloud DNS will provide you with custom name servers.
+- Note down these custom name servers as they will be used to update your domain's DNS settings in Namecheap.
+
+4. Configuring Namecheap to Use Custom Name Servers:
+- Log in to Namecheap account.
+- Go to the "Domain List" section and find the domain you purchased.
+- Click on the "Manage" button next to the domain.
+- Navigate to the "Nameservers" section.
+- Choose "Custom DNS" from the drop-down menu.
+- Enter the custom name servers provided by Google Cloud DNS.
+- Click on the checkmark icon to apply the changes.
+
+Adding or Updating A Record:
+
+1. Use "google_dns_record_set" resource in Terraform configuration to manage DNS record sets within Cloud DNS zone.
+2. Set "name" to your desired domain name (ie, mycloudwebapp.me.).
+3. Set "type" to "A" to indicate an A record.
+4. Set "ttl" to the desired Time to Live value (e.g., "50" seconds).
+5. Specify "managed_zone" with the name of your Cloud DNS zone. (ie, mycloudwebapp )
+6. Set "rrdatas" with the IP address of your VM instance where the web application is hosted.
+
+### Creating a Service Account:
+
+1. Define a "google_service_account" resource in the Terraform configuration file to create the service account.
+2. Specify the "account_id" and "display_name" for the service account.
+
+Attaching the Service Account to the Virtual Machine:
+1. Utilize the service_account block within the google_compute_instance resource to attach the service account to the virtual machine.
+2. Set the email to the email address of the service account and define necessary scopes.
+
+Binding IAM Roles to the Service Account:
+1. Use google_project_iam_binding resources to bind the required IAM roles to the service account.
+2. Define resource blocks for each IAM role specifying the project, role, and members(Roles are: Logging Admin &
+Monitoring Metric Writer)
+
