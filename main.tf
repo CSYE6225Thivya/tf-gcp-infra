@@ -230,6 +230,7 @@ metadata_startup_script = <<-EOF
     echo "DB_USER=${google_sql_user.sql_user.name}" >> /opt/webapp/.env
     echo "DB=${google_sql_database.webapp_db.name}" >> /opt/webapp/.env
     echo "DIALECT=mysql" >> /opt/webapp/.env
+    echo "TOPIC_NAME=verify_email" >> /opt/webapp/.env
     echo "LOGPATH=/var/log/webapp/app.log" >> /opt/webapp/.env
   else
       echo "The file $ENV_FILE already exists."
@@ -238,7 +239,21 @@ metadata_startup_script = <<-EOF
   EOF
 }
 
-
+# Resource to create Pub/Sub subscription
+# resource "google_pubsub_subscription" "my_subscription" {
+#   name  = "email-subscription"
+#   topic = google_pubsub_topic.my_topic.name
+#   ack_deadline_seconds = 10
+#   project = var.project_id
+# }
+# # IAM binding for Pub/Sub Subscription
+# resource "google_pubsub_subscription_iam_binding" "subscription_iam_binding" {
+#   subscription = google_pubsub_subscription.my_subscription.name
+#   role         = "roles/pubsub.subscriber"
+#   members      = [
+#     "serviceAccount:${google_service_account.vm_service_account.email}",
+#   ]
+# }
 
 # Resource to create Pub/Sub topic
 resource "google_pubsub_topic" "my_topic" {
@@ -246,41 +261,25 @@ resource "google_pubsub_topic" "my_topic" {
   message_retention_duration = var.message_retention_duration
 }
 
-# Resource to create Pub/Sub subscription
-# resource "google_pubsub_subscription" "my_subscription" {
-#   name  = "email-subscription"
-#   topic = google_pubsub_topic.my_topic.name
-# }
-
 # IAM binding for Cloud Functions
 resource "google_project_iam_binding" "function_iam_binding" {
   project = var.project_id
   role    = var.google_project_iam_binding_function_iam_binding_role
   members = [
-    # "serviceAccount:service-${google_cloudfunctions_function.my_function.service_account_email}",
   "serviceAccount:${google_service_account.vm_service_account.email}"
   ]
 }
 
-# IAM binding for Pub/Sub Subscription
-# resource "google_pubsub_subscription_iam_binding" "subscription_iam_binding" {
-#   subscription = google_pubsub_subscription.my_subscription.name
-#   role         = "roles/pubsub.subscriber"
-#   members      = [
-#     "serviceAccount:${google_cloudfunctions_function.vm_service_account.email}",
-#   ]
-# }
-
-# Resource to create Cloud Function
-
 # Resource to create VPC Connector
 resource "google_vpc_access_connector" "my_vpc_connector" {
-  name            = "my-vpc-connector"
+  name            = var.google_vpc_access_connector_name
   region          = var.region
   network         = google_compute_network.my_vpc.name
-  ip_cidr_range   = "10.8.0.0/28" 
+  ip_cidr_range   = var.google_vpc_access_connector_ipcidrrange
   min_throughput  = 200 
 }
+
+# Resource to create Cloud Function
 resource "google_cloudfunctions_function" "my_function" {
   name        =  var.google_cloudfunctions_function_name
   runtime     =  var.google_cloudfunctions_function_runtime
@@ -290,16 +289,13 @@ resource "google_cloudfunctions_function" "my_function" {
 
   available_memory_mb = 256
   timeout             = 60
-
-  # service_account_email = "service-${google_service_account.function_service_account.email}@gcf-admin-robot.iam.gserviceaccount.com"
-service_account_email = google_service_account.vm_service_account.email
+  service_account_email = google_service_account.vm_service_account.email
 
   event_trigger {
     event_type = "google.pubsub.topic.publish"
     resource   = google_pubsub_topic.my_topic.name
   }
    # Add VPC connector configuration
-
     vpc_connector = google_vpc_access_connector.my_vpc_connector.name
 
   environment_variables = {
@@ -317,7 +313,6 @@ resource "google_pubsub_topic_iam_binding" "topic_iam_binding" {
   topic  = google_pubsub_topic.my_topic.name
   role   = var.google_pubsub_topic_iam_binding_topic_iam_binding_role
   members = [
-    # "serviceAccount:${google_cloudfunctions_function.my_function.service_account_email}",
      "serviceAccount:${google_service_account.vm_service_account.email}",
   ]
 }
@@ -339,11 +334,3 @@ resource "google_project_iam_member" "cloudsql_client_role_binding" {
 }
 
 
-resource "google_cloud_run_service_iam_binding" "verify_email_function_binding" {
-  location = var.region
-  service = google_cloudfunctions_function.my_function.name  
-  role    = "roles/run.invoker"  
-  members = [
-    "serviceAccount:${google_service_account.vm_service_account.email}"  
-  ]
-}
