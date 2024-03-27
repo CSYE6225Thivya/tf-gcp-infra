@@ -100,3 +100,33 @@ Binding IAM Roles to the Service Account:
 2. Define resource blocks for each IAM role specifying the project, role, and members(Roles are: Logging Admin &
 Monitoring Metric Writer)
 
+
+## Assignment - 7
+
+1. Pub/Sub Topic and Subscription
+Resource: google_pubsub_topic and google_pubsub_subscription
+Description: Creates a Pub/Sub topic named verify_email with a subscription for the Cloud Function.
+Data Retention: The topic is configured with a data retention period of 7 days.
+2. IAM Bindings
+Resource: google_project_iam_binding
+Description: Sets IAM bindings for Cloud Functions, Pub/Sub subscriptions, and the service account token creator role.
+Roles Granted:
+roles/iam.serviceAccountTokenCreator role is granted to the service account.
+3. Cloud Function
+Resource: google_cloudfunctions_function
+Description: Deploys a Cloud Function that triggers on Pub/Sub topic messages.
+Functionality: The Cloud Function processes messages published to the verify_email topic.
+4. VPC Connector
+Resource: google_vpc_access_connector
+Description: Creates a VPC connector for Cloud Functions to access resources in a VPC network.
+Configuration: Specifies the VPC network and IP CIDR range.
+
+Enable the following API's from GCP console
+
+Cloud Build API
+Cloud Functions API
+Cloud Logging API
+Cloud Pub/Sub API
+Eventarc API
+Cloud Run Admin API
+
