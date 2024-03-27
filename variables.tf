@@ -282,6 +282,14 @@ variable "entry_point" {
   description = "Entry point of cloud function"
 }
 
+variable "google_vpc_access_connector_name" {
+  description = "Name of the vpc access connector"
+}
+
+variable "google_vpc_access_connector_ipcidrrange" {
+  description = "ip cidr range of vpc access connector"
+}
+
 
 
 
