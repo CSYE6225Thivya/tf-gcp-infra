@@ -238,6 +238,54 @@ variable "monitoring_metric_writer_binding" {
   description = "IAM binding for roles/monitoring.metricWriter"
 }
 
+variable "my_topic_name" {
+  description = "Name of the pub/sub topic"
+}
+
+variable "message_retention_duration" {
+  description = "message retention duration for topic"
+}
+
+variable "google_project_iam_binding_function_iam_binding_role" {
+  description = "Role binding for function"
+}
+
+variable "google_pubsub_topic_iam_binding_topic_iam_binding_role" {
+  description = "Role binding for topic"
+}
+
+variable "google_project_iam_binding_service_account_token_creator_binding_role" {
+  description = "Role binding for service account token creator"
+}
+
+variable "google_project_iam_member_cloudsql_client_role_binding_role" {
+  description = "Role binding for cloudsql client"
+}
+
+variable "google_cloudfunctions_function_name" {
+  description = "Name of the cloud function"
+}
+
+variable "google_cloudfunctions_function_runtime" {
+  description = "Runtime of the cloud function"
+}
+
+variable "source_archive_bucket" {
+  description = "Name of the source bucket"
+}
+
+variable "source_archive_object" {
+  description = "Name of the source object"
+}
+
+variable "entry_point" {
+  description = "Entry point of cloud function"
+}
+
+
+
+
+
 
 
 
