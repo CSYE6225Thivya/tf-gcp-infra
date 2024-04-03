@@ -130,3 +130,25 @@ Cloud Pub/Sub API
 Eventarc API
 Cloud Run Admin API
 
+## Assignment - 8
+
+Web Application Auto-Scaling and Load Balancing:
+This assignment aims to set up a web application infrastructure that auto-scales based on demand and utilizes a load balancer to distribute traffic efficiently. 
+
+IAM role enabled: 
+Certificate Manager API
+
+Autoscaling Web Application:
+- Compute Instance Template: A regional compute instance template is created to match the VM deployment. This template defines the configuration for the instances. (google_compute_region_instance_template)
+- Compute Health Check: A health check is set up to monitor the health of the instances. It uses the /healthz endpoint of the web application to determine the instance's health status.(google_compute_health_check)
+- Compute Autoscaler: An autoscaler resource is configured to scale up instances when CPU usage exceeds 5%. (google_compute_region_autoscaler)
+- Compute Instance Group Manager: A regional compute instance group manager is established, integrating the above resources to manage the lifecycle of instances dynamically. (google_compute_region_instance_group_manager)
+- Firewall rules are updated to restrict access to the virtual machines, allowing only the load balancer to access the endpoints. ( source_ranges = ["130.211.0.0/22", "35.191.0.0/16"])
+
+Load Balancer:
+- External Application Load Balancer: An external load balancer is created to distribute incoming traffic among the instances. It supports HTTPS protocol for secure communication.(google_compute_backend_service,google_compute_url_map,google_compute_target_https_proxy,google_compute_global_forwarding_rule)
+- SSL Certificates: Google-managed SSL certificates are utilized to ensure secure connections. (google_compute_managed_ssl_certificate)
+- HTTPS Protocol: APIs are accessible using the HTTPS protocol on the default port 443.
+  
+DNS Updates:
+- DNS records are updated to point the domain to the load balancer's IP address (created using google_compute_global_address), ensuring that users can access the application seamlessly.(google_dns_record_set)
