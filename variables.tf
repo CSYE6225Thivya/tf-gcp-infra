@@ -290,6 +290,185 @@ variable "google_vpc_access_connector_ipcidrrange" {
   description = "ip cidr range of vpc access connector"
 }
 
+variable "dialect" {
+  description = "Dialect value"
+}
+
+variable "api_key_mailgun" {
+  description = "API key of mailgun"
+}
+
+variable "my_domain_name" {
+  description = "Domain name"
+}
+
+variable "sendermail_mailgun" {
+  description = "Sender mail id from mailgun"
+}
+
+variable "base_url_link" {
+  description = "Base url path"
+}
+
+variable "private_ip_google_access_webapp_subnet" {
+  description = "Private google access"
+}
+
+
+variable "lb_global_address_name" {
+  description = "Global address for load balancer"
+}
+
+
+variable "deny_ssh_port" {
+  description = "Deny firewall ranges"
+}
+
+
+
+variable "vpc_firewall_source_ranges" {
+  description = "Firewall source ranges"
+}
+variable "webapp_template_name" {
+  description = "Webapp template name"
+}
+variable "webapp_template_description" {
+  description = "Webapp template description"
+}
+variable "webapp_template_machine_type" {
+  description = "Webapp template machine type"
+}
+
+variable "webapp_health_check_name" {
+  description = "webapp health check name"
+}
+
+variable "webapp_health_check_check_interval_sec" {
+  description = "webapp health check interval sec"
+}
+
+variable "webapp_health_check_timeout_sec" {
+  description = "webapp health check timeout sec"
+}
+variable "webapp_health_check_healthy_threshold" {
+  description = "webapp health check healthy threshold"
+}
+variable "webapp_health_check_unhealthy_threshold" {
+  description = "webapp health check unhealthy threshold"
+}
+
+variable "webapp_health_check_port" {
+  description = "webapp health check port"
+}
+variable "webapp_health_check_port_name" {
+  description = "webapp health check port name"
+}
+
+variable "webapp_health_check_request_path" {
+  description = "webapp health check request path"
+}
+variable "webapp_autoscaler_name" {
+  description = "webapp autoscaler name"
+}
+variable "min_replicas" {
+  description = "webapp autoscaler min replicas of instance"
+}
+
+variable "max_replicas" {
+  description = "webapp autoscaler max replicas of instance"
+}
+variable "cooldown_period" {
+  description = "webapp autoscaler cooldown period"
+}
+variable "cpu_utilization" {
+  description = "webapp autoscaler cpu utilization"
+}
+
+variable "webapp_instance_group_manager_name" {
+  description = "webapp instance group manager name"
+}
+variable "webapp_instance_group_manager_base_instance_name" {
+  description = "webapp instance group manager base instance name"
+}
+
+variable "distribution_policy_zones" {
+  description = "webapp instance group manager distribution policy zones"
+}
+variable "named_port_name" {
+  description = "Name of the named port"
+}
+
+variable "named_port_port" {
+  description = "Port of the named port"
+}
+
+variable "instance_lifecycle_policy" {
+  description = "Define Instance lifecycle policy"
+}
+
+variable "auto_healing_policies_initial_delay_sec" {
+  description = "auto healing policies initial delay sec"
+}
+variable "ssl_certificate_lb_name" {
+  description = "ssl certificate name"
+}
+variable "ssl_certificate_lb_domain" {
+  description = "ssl certificate managed domain name"
+}
+variable "backend_service_name" {
+  description = "backend service name of load balancer"
+}
+variable "backend_service_protocol" {
+  description = "backend service protocol of load balancer"
+}
+variable "backend_service_timeout_sec" {
+  description = "backend service timeout sec of load balancer"
+}
+variable "backend_service_port_name" {
+  description = "backend service port name  of load balancer"
+}
+variable "load_balancing_scheme" {
+  description = "backend service load balancing scheme  of load balancer"
+}
+variable "backend_service_balancing_mode" {
+  description = "backend service balancing mode of load balancer"
+}
+
+variable "capacity_scaler" {
+  description = "backend service capacity scaler of load balancer"
+}
+variable "backend_service_enable_cdn" {
+  description = "backend service enable cdn of load balancer"
+}
+variable "url_map_name" {
+  description = "url map name"
+}
+
+variable "https_proxy_name" {
+  description = "https proxy name"
+}
+variable "webapp_lb_forwarding_rule_https_name" {
+  description = "webapp lb forwarding rule https name "
+}
+
+variable "webapp_lb_forwarding_rule_https_ip_protocol" {
+  description = "webapp lb forwarding rule https ip protocol "
+}
+
+variable "webapp_lb_forwarding_rule_https_port_range" {
+  description = "webapp lb forwarding rule https port range "
+}
+variable "webapp_lb_forwarding_rule_https_load_balancing_scheme" {
+  description = "webapp lb forwarding rule https load balancing scheme "
+}
+
+
+
+
+
+
+
+
 
 
 
