@@ -98,7 +98,7 @@ resource "google_compute_firewall" "deny-ssh" {
   network = google_compute_network.my_vpc.self_link
  
  
-  allow {
+  deny {
     protocol = var.protocol_ssh
     ports =  var.deny_ssh_port
   }
