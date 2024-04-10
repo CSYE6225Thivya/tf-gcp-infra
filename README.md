@@ -152,3 +152,15 @@ Load Balancer:
   
 DNS Updates:
 - DNS records are updated to point the domain to the load balancer's IP address (created using google_compute_global_address), ensuring that users can access the application seamlessly.(google_dns_record_set)
+
+
+
+## Assignment - 9
+Roles to be enrolled in API/Service in GCP GUI : Cloud Key Management Service (KMS) API
+- A key ring will be created in the region where your resources are deployed. This key ring will serve as the container for managing encryption keys
+- Separate CMEKs will be created for the following resources:
+Virtual Machines
+CloudSQL Instances
+Cloud Storage Buckets
+- CMEKs will be set up with a 30-day rotation period to enhance security.
+- These CMEKs will be utilized when launching resources through Terraform(VM,sql,cloud storage), ensuring that your data remains encrypted with keys.
