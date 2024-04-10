@@ -55,7 +55,8 @@ resource "google_sql_database_instance" "cloudsql_instance" {
   database_version = var.mysql_db_version
   region           = var.region
   deletion_protection = var.deletion_protection
- 
+  encryption_key_name = google_kms_crypto_key.cloudsql_crypto_key.id
+  
   settings {
     tier              = var.sql_tier
     disk_type         = var.disk_type
@@ -73,6 +74,10 @@ resource "google_sql_database_instance" "cloudsql_instance" {
       ipv4_enabled = var.ipv4_enabled_cloudsql_instance
     }
   }
+  depends_on = [
+     google_kms_crypto_key.cloudsql_crypto_key
+   
+  ]
 }
 
 # Resource to create firewall rule for HTTP traffic
@@ -186,8 +191,36 @@ resource "google_project_iam_binding" "function_iam_binding" {
   ]
 }
 
+resource "google_storage_bucket" "my_serverless_bucket" {
+ name=  var.my_serverless_bucket
+ location = var.region
+  encryption {
+    default_kms_key_name = google_kms_crypto_key.storage_crypto_key.id
+  }
+   force_destroy = var.google_storage_bucket_force_destroy
 
+  public_access_prevention =  var.google_storage_bucket_public_access_prevention
+  depends_on = [google_kms_crypto_key.storage_crypto_key,
+  google_kms_crypto_key_iam_binding.storage_crypto_key_iam_binding,
+  ]
+ 
+}
 
+resource "google_storage_bucket_object" "my_serverless_bucket_object" {
+  name   =  var.google_storage_bucket_object_name
+  bucket = google_storage_bucket.my_serverless_bucket.name
+  source =  var.google_storage_bucket_object_source
+}
+
+# resource "google_storage_bucket_iam_binding" "storage_bucket_iam_binding" {
+#   bucket = google_storage_bucket.my_serverless_bucket.name
+#   role   = "roles/storage.admin"
+
+#   members = [
+#     "serviceAccount:${google_service_account.vm_service_account.email}",
+    
+#   ]
+# }
 # Resource to create VPC Connector
 resource "google_vpc_access_connector" "my_vpc_connector" {
   name            = var.google_vpc_access_connector_name
@@ -201,8 +234,8 @@ resource "google_vpc_access_connector" "my_vpc_connector" {
 resource "google_cloudfunctions_function" "my_function" {
   name        =  var.google_cloudfunctions_function_name
   runtime     =  var.google_cloudfunctions_function_runtime
-  source_archive_bucket = var.source_archive_bucket
-  source_archive_object = var.source_archive_object
+  source_archive_bucket = google_storage_bucket.my_serverless_bucket.name
+  source_archive_object = google_storage_bucket_object.my_serverless_bucket_object.name
   entry_point = var.entry_point
 
   available_memory_mb = 256
@@ -225,10 +258,7 @@ resource "google_cloudfunctions_function" "my_function" {
     API_KEY_MAILGUN     = var.api_key_mailgun
     DOMAIN_NAME_MAILGUN = var.my_domain_name
     SENDER_MAILGUN = var.sendermail_mailgun
-    BASE_URL_LINK = var.base_url_link
-
-
-   
+    BASE_URL_LINK = var.base_url_link 
   }
 }
 
@@ -253,11 +283,9 @@ resource "google_project_iam_binding" "service_account_token_creator_binding" {
 # Grant roles/cloudsql.client role to the Cloud Function's service account
 resource "google_project_iam_member" "cloudsql_client_role_binding" {
   project = var.project_id
-  role    = var.google_project_iam_member_cloudsql_client_role_binding_role
+  role    = var.google_project_iam_member_cloudsql_client_role_binding_role 
   member  = "serviceAccount:${google_service_account.vm_service_account.email}"
 }
-
-
 
 # Resource to create regional compute instance template
 resource "google_compute_region_instance_template" "webapp_template" {
@@ -267,10 +295,14 @@ resource "google_compute_region_instance_template" "webapp_template" {
   region = var.region
   disk {
     source_image = var.instance_name
-    disk_size_gb = var.disk_size
+    disk_size_gb = var.disk_size_template
     disk_type    = var.custom_image_instance_bootdisk_type
     auto_delete       = true
     boot              = true
+  
+    disk_encryption_key {
+      kms_key_self_link = google_kms_crypto_key.vm_crypto_key.id
+    }
   }
  
  network_interface {
@@ -442,8 +474,83 @@ resource "google_dns_record_set" "A_record" {
   rrdatas = [google_compute_global_address.lb_global_address.address]
 }
 
+# Resource to create Key Ring
+resource "google_kms_key_ring" "web_key_ring" {
+  name     =  var.google_kms_key_ring_name
+  location = var.region
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+
+# Resource to create Customer-Managed Encryption Keys (CMEK) for VM
+resource "google_kms_crypto_key" "vm_crypto_key" {
+  name            = var.google_kms_crypto_key_vm_crypto_key_name
+  key_ring        = google_kms_key_ring.web_key_ring.id
+  rotation_period =  var.google_kms_crypto_key_rotation_period
+   lifecycle {
+    prevent_destroy = false
+  }
+}
+
+# Resource to create Customer-Managed Encryption Keys (CMEK) for CloudSQL Instances
+resource "google_kms_crypto_key" "cloudsql_crypto_key" {
+  name            = var.google_kms_crypto_key_cloudsql_crypto_key_name
+  key_ring        = google_kms_key_ring.web_key_ring.id
+  rotation_period = var.google_kms_crypto_key_rotation_period
+   lifecycle {
+    prevent_destroy = false
+  }
+}
+
+# Resource to create Customer-Managed Encryption Keys (CMEK) for Cloud Storage Buckets
+resource "google_kms_crypto_key" "storage_crypto_key" {
+  name            =  var.google_kms_crypto_key_storage_crypto_key_name
+  key_ring        = google_kms_key_ring.web_key_ring.id
+  rotation_period = var.google_kms_crypto_key_rotation_period
+   lifecycle {
+    prevent_destroy = false
+  }
+}
+
+# IAM binding for the service account on the VM crypto key
+resource "google_kms_crypto_key_iam_binding" "vm_crypto_key_iam_binding" {
+  crypto_key_id = google_kms_crypto_key.vm_crypto_key.id
+  role          =  var.google_kms_crypto_key_iam_binding_role
+
+  members = [
+     "serviceAccount:service-54342532589@compute-system.iam.gserviceaccount.com",
+  ]
+  depends_on = [google_kms_crypto_key.vm_crypto_key]
+}
 
 
+# IAM binding for the service account on the CloudSQL crypto key
+resource "google_kms_crypto_key_iam_binding" "cloudsql_crypto_key_iam_binding" {
+  crypto_key_id = google_kms_crypto_key.cloudsql_crypto_key.id
+  role          = var.google_kms_crypto_key_iam_binding_role
 
+  members = [
+    "serviceAccount:${google_project_service_identity.gcp_sa_cloud_sql.email}",
+  ]
+    depends_on = [google_kms_crypto_key.cloudsql_crypto_key]
+
+}
+
+# IAM binding for the service account on the storage crypto key
+resource "google_kms_crypto_key_iam_binding" "storage_crypto_key_iam_binding" {
+  crypto_key_id = google_kms_crypto_key.storage_crypto_key.id
+  role          = var.google_kms_crypto_key_iam_binding_role
+  members = ["serviceAccount:service-54342532589@gs-project-accounts.iam.gserviceaccount.com"]
+
+    depends_on = [google_kms_crypto_key.storage_crypto_key]
+}
+
+
+resource "google_project_service_identity" "gcp_sa_cloud_sql" {
+  provider = google-beta
+  project = var.project_id
+  service  = var.google_project_service_identity_gcp_sa_cloud_sql
+}
 
 

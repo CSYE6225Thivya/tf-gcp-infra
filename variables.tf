@@ -462,10 +462,52 @@ variable "webapp_lb_forwarding_rule_https_load_balancing_scheme" {
   description = "webapp lb forwarding rule https load balancing scheme "
 }
 
+variable "my_serverless_bucket" {
+  description = "Name of the serverless bucket"
+}
 
 
+variable "google_storage_bucket_force_destroy" {
+  description = "google storage_bucket force_destroy attribute"
+}
 
+variable "google_storage_bucket_public_access_prevention" {
+  description = "google storage_bucket public_access_prevention"
+}
 
+variable "google_storage_bucket_object_name" {
+  description = "google storage_bucket object name"
+}
+
+variable "google_storage_bucket_object_source" {
+  description = "google storage_bucket object source"
+}
+variable "google_kms_key_ring_name" {
+  description = "google kms key ring name"
+}
+variable "google_kms_crypto_key_vm_crypto_key_name" {
+  description = "google kms crypto key for VM"
+}
+variable "google_kms_crypto_key_rotation_period" {
+  description = "google kms crypto key rotation period"
+}
+variable "google_kms_crypto_key_cloudsql_crypto_key_name" {
+  description = "google kms crypto key for sql"
+}
+variable "google_kms_crypto_key_storage_crypto_key_name" {
+  description = "google kms crypto key for storage bucket"
+}
+variable "google_kms_crypto_key_iam_binding_role" {
+  description = "google kms crypto key iam binding role"
+}
+
+variable "google_project_service_identity_gcp_sa_cloud_sql" {
+  description = "google project service identity service"
+}
+
+variable "disk_size_template" {
+  description = "Size of the instance template"
+}
 
 
 
